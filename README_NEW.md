@@ -7,9 +7,9 @@ Funcionalidades principais:
 - Parsing de camadas: IPv4/IPv6/ICMP, TCP/UDP.
 - Identificação básica de aplicação: HTTP, DHCP, DNS, NTP.
 - Logs CSV atualizados em tempo real em `logs/`:
-	- `logs/internet.csv`: timestamp, protocolo (IPv4/IPv6/ICMP), src, dst, ip_proto, info, tamanho_bytes.
-	- `logs/transporte.csv`: timestamp, protocolo (TCP/UDP), src, sport, dst, dport, tamanho_bytes.
-	- `logs/aplicacao.csv`: timestamp, protocolo (HTTP/DHCP/DNS/NTP/outro), info.
+  - `logs/internet.csv`: timestamp, protocolo (IPv4/IPv6/ICMP), src, dst, ip_proto, info, tamanho_bytes.
+  - `logs/transporte.csv`: timestamp, protocolo (TCP/UDP), src, sport, dst, dport, tamanho_bytes.
+  - `logs/aplicacao.csv`: timestamp, protocolo (HTTP/DHCP/DNS/NTP/outro), info.
 - Interface texto com contadores por protocolo e estatísticas por cliente (IP do túnel `172.31.66.0/24` por padrão): endpoints remotos, portas, protocolos, conexões (SYN), pacotes e volume.
 
 Requisitos de execução:

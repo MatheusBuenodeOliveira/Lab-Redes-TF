@@ -1,0 +1,262 @@
+Laborat´orio de Redes de Computadores -
+Trabalho Final
+
+Monitor de Tr´afego de Rede em Tempo Real
+
+Objetivo
+
+O objetivo geral deste trabalho ´e desenvolver uma ferramenta para moni-
+toramento de tr´afego de rede em tempo real utilizando raw sockets. A ferra-
+menta deve ser capaz de capturar, interpretar e classificar pacotes de rede,
+al´em de fornecer uma interface do usu´ario simples para visualizar contadores
+e estat´ısticas de tr´afego de rede e ao mesmo tempo escrever um hist´orico dos
+pacotes recebidos em um arquivo de log.
+
+Os objetivos espec´ıficos incluem:
+
+• Desenvolvimento de uma aplica¸c˜ao usando sockets raw ;
+• Estudo do funcionamento dos protocolos de rede e do relacionamento
+
+entre as camadas;
+
+• Entender como os pacotes de dados s˜ao estruturados e como eles podem
+
+ser interpretados para extrair informa¸c˜oes ´uteis;
+
+• Entender o tr´afego de uma rede local e os tipos de protocolos normal-
+
+mente trafegados;
+
+• Utilizar uma estrutura de rede j´a definida como parte do problema.
+
+Descri¸c˜ao
+
+Vocˆe foi contratado para desenvolver uma aplica¸c˜ao que dever´a analisar
+o tr´afego de uma rede, a qual possui uma estrutura onde um conjunto de
+clientes acessam a internet por meio de um servidor proxy. Tanto os clientes,
+quanto o proxy, residem na mesma LAN. A ´unica forma dos clientes terem
+
+1
+
+acesso `a rede externa ´e por meio de um programa que atua como um cli-
+ente do proxy, o qual encapsula o tr´afego dos clientes em pacotes IP com
+informa¸c˜oes forjadas, para maior seguran¸ca. O servidor proxy ir´a desencap-
+sular o tr´afego de cada cliente e encaminhar o mesmo, atuando como um
+roteador. Infelizmente, vocˆe n˜ao possui controle sobre a estrutura da rede,
+portanto para analisar o tr´afego ser´a necess´ario desenvolver uma aplica¸c˜ao
+para monitoramento em tempo real, que executar´a na m´aquina que atua
+como servidor proxy.
+
+O monitor de tr´afego de rede em tempo real a ser desenvolvido deve ser
+capaz de identificar e classificar diferentes tipos de pacotes de dados que
+passam pela rede. Isso inclui identificar protocolos de rede como IP, TCP,
+UDP, ICMP, DHCP etc., bem como origem, destino e tamanho dos pacotes.
+O programa a ser desenvolvido deve possuir uma interface modo texto que
+apresenta contadores para cada tipo de pacote recebido. Para cada protocolo,
+seu programa deve apresentar um conjunto de informa¸c˜oes que ser˜ao manti-
+dos em arquivos de log do tipo .csv, para as camadas da pilha de procotolos
+TCP/IP. A interface a ser monitorada ´e a interface virtual tun0 no servidor
+proxy1, onde o tr´afego dos pacotes de todos os clientes pode ser interceptado.
+
+Arquivos de log e monitor de tr´afego
+
+O arquivo de log para o protocolo IP na camada de rede (camada internet.csv)
+
+deve contemplar os protocolos IPv4, IPv6 e ICMP e ter as seguintes colunas:
+
+• Data e hora que o pacote foi capturado;
+• Nome do protocolo (IPv4, IPv6, ICMP, outro);
+• Endere¸co IP de origem (ex: 100.114.7.75, fe80::ad3e:46fc:abf7:55c9);
+• Endere¸co IP de destino;
+• N´umero identificador do protocolo que est´a sendo carregado no pacote;
+• Outras informa¸c˜oes do protocolo (para ICMP);
+• Tamanho total do pacote em bytes.
+
+O arquivo de log para camada de transporte (camada transporte.csv) deve
+
+contemplar os protocolos TCP e UDP e ter as seguintes colunas:
+
+• Data e hora que o pacote foi capturado;
+
+1Mais detalhes sobre a arquitetura da rede s˜ao apresentados adiante.
+
+2
+
+• Nome do protocolo (TCP, UDP, outro);
+• Endere¸co IP de origem;
+• Porta de origem (ex: 8080);
+• Endere¸co IP de destino;
+• Porta de destino;
+• Tamanho total do pacote em bytes.
+
+O arquivo de log para camada de aplica¸c˜ao (camada aplicacao.csv) deve
+contemplar os protocolos HTTP, DHCP, DNS e NTP e ter as seguintes co-
+lunas:
+
+• Data e hora que o pacote foi capturado;
+• Nome do protocolo (HTTP, DHCP, DNS, NTP, outro);
+• Informa¸c˜oes do protocolo (obtidas de seu cabe¸calho).
+
+Os arquivos de log devem ser atualizados em tempo real e a qualquer
+momento deve ser poss´ıvel dar um ”cat”para visualizar o que foi capturado
+at´e o momento. A ferramenta de monitoramento deve apresentar para cada
+cliente (representado por um IP da rede t´unel) informa¸c˜oes sobre m´aquinas
+remotas acessadas e para cada uma as portas, protocolos, conex˜oes, pacotes
+trocados e o volume de tr´afego associado.
+
+T´unel de tr´afego
+
+O t´unel j´a utilizado na empresa que solicitou os seus servi¸cos possui uma
+
+arquitetura ilustrada no diagrama:
+
+Arquitetura dos clientes:
++------------+
+|
+|
+| Aplica¸c~oes |
+| de usu´ario |
+|
+|
++------------+
+
++------+ tr´afego
+
+tr´afego
+---------> | tun0 |
++------+
+<---------
+(interface virtual)
+
+--------->
+<---------
+
++------------+
+|
+| programa
+|
+t´unel
+| (cliente) |
++------------+
+
+| tr´afego mascarado
+| --------------->
+| <---------------
+internet
+restrita
+
+tun0:172.31.66.xxx
+
+eth0:10.xxx.xxx.xxx
+
+Arquitetura do servidor proxy:
+
++------------+
+|
+
+tr´afego mascarado
+-----------------> | programa | ------------> | tun0 | --------------------->
++------+ <---------------------
+<----------------- |
+
+NAT e roteamento
+
+| tr´afego
+
++------+
+
+internet
+restrita
+
+t´unel
+
+| <------------
+| (proxy)
+|
++------------+
+
+(interface virtual)
+
+internet!
+
+eth0:10.xxx.xxx.xxx
+
+tun0:172.31.66.1
+
+3
+
+Como apresentado, o tr´afego das aplica¸c˜oes dos clientes passa por um
+programa t´unel por meio de uma interface virtual. O programa t´unel en-
+capsula e mascara o tr´afego e injeta o mesmo na interface f´ısica, a qual est´a
+conectada a uma LAN. O servidor proxy (t´unel) recebe o tr´afego encapsu-
+lado, desencapsula o mesmo e o injeta em uma interface virtual. A partir
+desse ponto, a m´aquina onde est´a executando o proxy utiliza uma regra de
+iptables (com masquerading) para implementar uma NAT, e roteia o tr´afego
+para a internet.
+
+Configura¸c˜ao do t´unel
+
+Para compilar o programa que implementa o t´unel, ´e necess´ario ter insta-
+lado em um ambiente Linux os pacotes build-essentials e iptables. No contai-
+ner da disciplina n˜ao ´e necess´ario instalar nenhuma dependˆencia. Ap´os des-
+compactar os fontes, execute o comando make. ´E importante que o ambiente
+onde o t´unel ir´a executar seja uma LAN, composta por diversos computa-
+dores Linux conectados `a mesma rede (como o LabRedes). A LAN pode ser
+implementada por computadores f´ısicos, VMs ou containers.
+
+Executando o t´unel no modo servidor proxy
+
+Para carregar o t´unel no modo proxy, execute o comando abaixo. N˜ao ´e
+necess´ario usar sudo caso a m´aquina seja um container. Para saber o nome
+da interface e seu IP, utilize o comando sudo ifconfig ou ip addr.
+
+$ sudo ./traffic_tunnel <interface do servidor> -s
+
+Ap´os a carga do programa t´unel, verifique se a interface tun0 foi criada
+
+e se o roteamento foi habilitado no kernel.
+
+Executando o t´unel no modo cliente
+
+Para carregar o t´unel no modo cliente, utilize um script diferente para cada
+cliente, e execute o comando abaixo. S˜ao fornecidos 2 scripts como referˆencia.
+Assim como no servidor proxy, ´e necess´ario saber o nome da interface.
+
+$ sudo ./traffic_tunnel <interface do cliente> -c client1.sh
+
+4
+
+Container Linux (opcional)
+
+O container pode ser instalado com o comando abaixo (substitua podman
+por docker caso esteja utilizando Docker). Isso pode ser feito em m´aquinas
+Linux ou Windows.
+
+$ podman pull ghcr.io/sjohann81/labredes:latest
+
+Instru¸c˜oes sobre o uso de containers s˜ao apresentadas em https://github.
+
+com/sjohann81/linux_container.
+
+Resultados e entrega
+
+Este trabalho dever´a ser realizado em grupos de 3 ou 4 integrantes, sendo
+a data de entrega 24/11 e apresenta¸c˜ao ser´a nos dias 24/11 e 01/12. ´E
+importante que todos os grupos estejam aptos a apresentarem o trabalho a
+partir do in´ıcio da aula. Qualquer linguagem de programa¸c˜ao poder´a ser
+utilizada para o desenvolvimento. Para a entrega, ´e esperado que apenas
+um dos integrantes envie pelo Moodle, at´e a data e hora especificadas, um
+arquivo .tar.gz ou .zip com os nomes dos integrantes, contendo o c´odigo
+fonte completo do projeto e um relat´orio descrevendo a implementa¸c˜ao. ´E
+importante que no relat´orio seja apresentada uma an´alise, incluindo o uso
+de screenshots que demonstrem o funcionamento do projeto no ambiente de
+rede (f´ısico ou virtual).
+
+Importante: N˜ao ser˜ao aceitos trabalhos entregues fora do prazo. Tra-
+balhos que n˜ao compilam ou n˜ao executam n˜ao ser˜ao avaliados. Trabalhos
+que estiverem rodando no mesmo host ou que n˜ao utilizem sockets raw ser˜ao
+desconsiderados.
+
+5
+
+

@@ -1,0 +1,2 @@
+# Projeto usa apenas bibliotecas da stdlib do Python.
+# Este arquivo existe apenas para compatibilidade; não há dependências externas.
