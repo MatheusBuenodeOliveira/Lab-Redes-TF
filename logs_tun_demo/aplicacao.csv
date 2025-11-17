@@ -1,0 +1,11 @@
+timestamp,protocolo,info
+2025-11-17T23:22:37.015419,DNS,DNS tid=4660 qr=0 opcode=4 rcode=4 qd=30061 an=28025
+2025-11-17T23:22:37.021388,DNS,DNS tid=4660 qr=1 opcode=4 rcode=1 qd=0 an=0
+2025-11-17T23:22:37.115534,DNS,DNS tid=4660 qr=0 opcode=4 rcode=4 qd=30061 an=28025
+2025-11-17T23:22:37.121146,DNS,DNS tid=4660 qr=1 opcode=4 rcode=1 qd=0 an=0
+2025-11-17T23:22:37.215636,DNS,DNS tid=4660 qr=0 opcode=4 rcode=4 qd=30061 an=28025
+2025-11-17T23:22:37.221190,DNS,DNS tid=4660 qr=1 opcode=4 rcode=1 qd=0 an=0
+2025-11-17T23:22:37.315819,DNS,DNS tid=4660 qr=0 opcode=4 rcode=4 qd=30061 an=28025
+2025-11-17T23:22:37.321803,DNS,DNS tid=4660 qr=1 opcode=4 rcode=1 qd=0 an=0
+2025-11-17T23:22:37.415884,DNS,DNS tid=4660 qr=0 opcode=4 rcode=4 qd=30061 an=28025
+2025-11-17T23:22:37.421763,DNS,DNS tid=4660 qr=1 opcode=4 rcode=1 qd=0 an=0
