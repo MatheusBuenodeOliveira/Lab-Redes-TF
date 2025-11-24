@@ -17,7 +17,7 @@ from . import ui
 class Monitor:
     def __init__(self, interface: str, client_subnet: str | None = None) -> None:
         self.interface = interface
-        # Sub-rede padrão do enunciado (pode ser ajustada via CLI)
+        # Sub-rede padrão (pode ser ajustada via CLI)
         self.client_net = ipaddress.ip_network(client_subnet or '172.31.66.0/24', strict=False)
         self.cap = RawCapture(interface)
         self.stats = Stats()

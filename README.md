@@ -158,3 +158,29 @@ docker compose down && docker compose up --build -d
 
 ## Licença / Uso
 Projeto acadêmico para fins educacionais; não otimizado para produção.
+
+## Demo Rápida Sem Túnel (Fallback)
+
+Caso o ambiente de túnel esteja indisponível, é possível demonstrar a captura e
+classificação usando a interface física (ex.: `eth0`). O script
+`scripts/demo_no_tunnel.sh`:
+
+1. Limpa arquivos CSV em `logs/`.
+2. Inicia o monitor em segundo plano apontando para `eth0`.
+3. Gera tráfego HTTP/DNS/NTP (se ferramentas disponíveis) por alguns ciclos.
+4. Finaliza o monitor e mostra um resumo inicial dos CSVs + extratos da UI.
+
+Execução:
+```bash
+sudo bash scripts/demo_no_tunnel.sh
+```
+Variáveis opcionais:
+- `MON_IF` (padrão `eth0`)
+- `CLIENT_SUBNET` (padrão `0.0.0.0/0` para tratar todo IPv4 como cliente)
+- `ROUNDS` número de ciclos (padrão 3)
+- `SLEEP_BETWEEN` intervalo entre ciclos (padrão 3s)
+
+Saída esperada: preenchimento de `logs/internet.csv`, `logs/transporte.csv` e
+`logs/aplicacao.csv` com pacotes reais (IPv4/TCP, DNS, HTTP, etc.). Caso algum
+protocolo específico não apareça, verifique se o comando associado (ex.: `dig`,
+`ntpdate`) está instalado.
