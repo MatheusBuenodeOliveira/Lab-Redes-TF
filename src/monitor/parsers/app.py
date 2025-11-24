@@ -6,13 +6,15 @@ HTTP_METHODS = {b'GET', b'POST', b'PUT', b'DELETE', b'HEAD', b'PATCH', b'OPTIONS
 
 
 def sniff_http(payload: bytes) -> Optional[str]:
-    # Tenta identificar requisições/respostas HTTP textual
+    # Identifica HTTP por método ou prefixo HTTP/. Remove quebras e normaliza espaços.
     try:
         head = payload[:8]
-        if any(head.startswith(m) for m in HTTP_METHODS) or head.startswith(b'HTTP/'): 
-            # Trunca saída para evitar logs gigantes
-            text = payload.split(b"\r\n\r\n", 1)[0][:256]
-            return text.decode(errors='ignore').replace('\n', ' ')
+        if any(head.startswith(m) for m in HTTP_METHODS) or head.startswith(b'HTTP/'):
+            raw = payload.split(b"\r\n\r\n", 1)[0][:256]
+            decoded = raw.decode(errors='ignore')
+            decoded = decoded.replace('\r', ' ').replace('\n', ' ')
+            decoded = ' '.join(decoded.split())  # colapsa múltiplos espaços
+            return decoded
     except Exception:
         return None
     return None
@@ -65,7 +67,7 @@ def identify_app(src_port: int, dst_port: int, payload: bytes) -> Optional[Dict]
     sp, dp = src_port, dst_port
     # HTTP: tipicamente 80/8080/8000/443 (TLS impede parse do conteúdo). Assinatura textual ajuda.
     http_info = sniff_http(payload)
-    if http_info and (sp in (80, 8080, 8000) or dp in (80, 8080, 8000) or http_info):
+    if http_info and (sp in (80, 8080, 8000) or dp in (80, 8080, 8000)):
         return {'name': 'HTTP', 'info': http_info}
 
     # DNS: porta 53 UDP/TCP

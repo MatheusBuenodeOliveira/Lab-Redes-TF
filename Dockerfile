@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     iptables \
     python3 python3-venv python3-pip \
     curl dnsutils net-tools iputils-ping ntpdate \
+    procps \
     ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 

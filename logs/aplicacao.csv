@@ -1,9 +1,0 @@
-timestamp,protocolo,info
-2025-11-17T22:59:47.165898,HTTP,"GET /machine/?comp=goalstate HTTP/1.1 Host: 168.63.129.16 Accept-Encoding: identity x-ms-agent-name: WALinuxAgent x-ms-version: 2012-11-30 Connection: close User-Agent: WALinuxAgent/2.13.1.1"
-2025-11-17T22:59:47.167808,HTTP,"HTTP/1.1 200 OK Content-Type: text/xml; charset=utf-8 Server: Microsoft-IIS/10.0 Date: Mon, 17 Nov 2025 22:59:46 GMT Connection: close Content-Length: 2321"
-2025-11-17T22:59:47.169540,HTTP,"GET /vmSettings HTTP/1.1 Host: 168.63.129.16:32526 Accept-Encoding: identity x-ms-version: 2015-09-01 x-ms-containerid: 64d89420-60db-4561-9eab-e0a22dae37fb x-ms-host-config-name: e966dd38-482c-4105-a7a2-daf2c4f2c1bf.1.e966dd38-482c-4105-a7a2-daf2c4f2"
-2025-11-17T22:59:47.173107,HTTP,"HTTP/1.1 304 Not Modified Server: Microsoft-IIS/10.0 x-ms-server-version: 1.0.8.177 x-ms-certificates-revision: 1 Date: Mon, 17 Nov 2025 22:59:46 GMT Connection: close"
-2025-11-17T22:59:47.175395,HTTP,"PUT /status HTTP/1.1 Host: 168.63.129.16:32526 Accept-Encoding: identity Content-Length: 606 x-ms-version: 2015-09-01 Content-type: application/json x-ms-containerid: 64d89420-60db-4561-9eab-e0a22dae37fb x-ms-host-config-name: e966dd38-482c-4105-a7a"
-2025-11-17T22:59:47.175734,HTTP,"HTTP/1.1 200 OK Server: Microsoft-IIS/10.0 x-ms-server-version: 1.0.8.177 Date: Mon, 17 Nov 2025 22:59:46 GMT Connection: close Content-Length: 0"
-2025-11-17T22:59:47.176746,HTTP,"PUT /status HTTP/1.1 Host: 168.63.129.16:32526 Accept-Encoding: identity Content-Length: 14284 x-ms-version: 2015-09-01 Content-type: application/json x-ms-containerid: 64d89420-60db-4561-9eab-e0a22dae37fb x-ms-host-config-name: e966dd38-482c-4105-a"
-2025-11-17T22:59:47.177929,HTTP,"HTTP/1.1 200 OK Server: Microsoft-IIS/10.0 x-ms-server-version: 1.0.8.177 Date: Mon, 17 Nov 2025 22:59:46 GMT Connection: close Content-Length: 0"

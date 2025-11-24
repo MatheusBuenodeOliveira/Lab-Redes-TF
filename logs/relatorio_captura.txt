@@ -1,0 +1,61 @@
+Relatorio de Captura - 2025-11-24
+
+Etapas Realizadas:
+1. Limpeza dos arquivos CSV antigos em logs/.
+2. Rebuild completo dos containers (proxy-monitor, client1-tunnel, client2-tunnel).
+3. Patch no entrypoint para configurar IP 172.31.66.1/24 e ativar tun0 no servidor (proxy-monitor).
+4. Verificacao da continuidade da captura (thread ativa e tun0 UP).
+5. Tentativas de trafego (ping intra-tun, geracao de trafego default nos clientes) resultando em capturas ICMPv6 na tun0.
+
+Arquivos Gerados (linhas):
+- internet.csv: 5 linhas (incluindo cabecalho)
+- transporte.csv: 1 linha (apenas cabecalho, sem trafego TCP/UDP via tun observado)
+- aplicacao.csv: 1 linha (cabecalho; sem deteccao HTTP/DNS/NTP em tun)
+
+Sample de internet.csv (ultimas linhas):
+timestamp,protocolo,src_ip,dst_ip,ip_proto,info,tamanho_bytes
+2025-11-24T03:33:36.923897,ICMP,fe80::5d0d:83f3:ce7c:598f,ff02::2,58,ICMPv6 type=133 code=0,48
+2025-11-24T03:33:44.795990,ICMP,fe80::5d0d:83f3:ce7c:598f,ff02::2,58,ICMPv6 type=133 code=0,48
+2025-11-24T03:34:00.155876,ICMP,fe80::5d0d:83f3:ce7c:598f,ff02::2,58,ICMPv6 type=133 code=0,48
+2025-11-24T03:34:30.875937,ICMP,fe80::5d0d:83f3:ce7c:598f,ff02::2,58,ICMPv6 type=133 code=0,48
+
+Observacoes:
+- Captura funcional em camada de Internet para ICMPv6 (mensagens tipo 133).
+- Ausencia de trafego TCP/UDP e aplicacao dentro da tun sugere que geracao atual ocorre fora da interface ou falta roteamento/forwarding entre clientes pelo servidor.
+- Para obter entradas em transporte.csv e aplicacao.csv via tun, necessario encaminhar trafego (ex: configurar roteamento ou gerar trafego TCP/UDP explicitamente para IP do servidor 172.31.66.1).
+
+Proximos Passos Recomendados:
+1. Ajustar traffic_tunnel para encaminhar pacotes entre clientes (verificar implementacao de forward/bridge).
+2. Gerar DNS/HTTP usando destino acessivel via tun (ex: executar um pequeno servidor HTTP no proxy e acessar porta 80 pelos clientes).
+3. Validar captura de SYN TCP (flags) e atualizacao de estatisticas em stats.
+
+Comandos Principais Utilizados:
+docker compose down && docker compose up --build -d
+docker exec proxy-monitor ip addr show tun0
+docker exec client1-tunnel ping -c 3 172.31.66.1
+docker exec proxy-monitor tail -n 10 logs/internet.csv
+docker exec proxy-monitor wc -l logs/*.csv
+ 
+Teste adicional (sem alterar forwarding do túnel):
+
+Para evitar mudanças no binário do túnel, subi um servidor HTTP simples em `client1-tunnel` e gerei requisições a partir do `proxy-monitor` via `tun0`. Isso valida a captura no `proxy-monitor` sem alterar o comportamento do túnel.
+
+Comandos executados:
+docker exec -d client1-tunnel python3 -m http.server 8080 --bind 172.31.66.101
+docker exec proxy-monitor curl --interface tun0 -s -o /dev/null http://172.31.66.101:8080/
+
+Resultado:
+- `transporte.csv` (amostra de linhas capturadas):
+2025-11-24T04:04:17.315404,TCP,172.31.66.1,41468,172.31.66.101,8080,60
+2025-11-24T04:04:18.331886,TCP,172.31.66.1,41468,172.31.66.101,8080,60
+2025-11-24T04:06:38.411356,TCP,172.31.66.1,50546,172.31.66.101,8080,60
+2025-11-24T04:06:39.452016,TCP,172.31.66.1,50546,172.31.66.101,8080,60
+2025-11-24T04:10:06.224209,TCP,172.31.66.1,51416,172.31.66.101,8080,60
+
+- `aplicacao.csv` ainda não contém payload HTTP textual porque os pacotes capturados no momento foram cabeçalhos/ACKs (tamanho 60). A detecção de aplicação ocorre quando o parser encontra payload TCP com dados HTTP no pacote capturado.
+
+Conclusao:
+- Consegui gerar tráfego TCP observado pelo monitor no `proxy-monitor` apontando para serviços dentro da sub-rede tun (172.31.66.0/24) sem implementar forwarding no binário do túnel.
+- Para obter linhas HTTP completas em `aplicacao.csv` basta garantir que os pacotes de dados (payload) estejam presentes no read do TUN — possivelmente gerando requisições maiores ou ajustando MTU/segmentação para que o monitor veja o payload.
+
+Fim do Relatorio.

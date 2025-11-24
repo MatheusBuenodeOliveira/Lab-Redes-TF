@@ -30,8 +30,8 @@ class Monitor:
         self.cap.open()
         t = threading.Thread(target=self._loop_capture, daemon=True)
         t.start()
+        # Mantém execução contínua até interrupção externa (Ctrl+C / signal)
         ui.print_periodic(self.stats.snapshot, interval=1.0)
-        self._stop.set()
 
     def stop(self) -> None:
         self._stop.set()
