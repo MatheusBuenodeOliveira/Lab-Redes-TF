@@ -60,3 +60,4 @@ timestamp,protocolo,src_ip,dst_ip,ip_proto,info,tamanho_bytes
 2025-11-24T21:51:37.649769,ICMP,fe80::b8c6:bfff:fe74:ebb2,ff02::2,58,ICMPv6 type=133 code=0,56
 2025-11-24T21:55:47.505901,ICMP,fe80::b8c6:bfff:fe74:ebb2,ff02::2,58,ICMPv6 type=133 code=0,56
 2025-11-24T22:04:03.121833,ICMP,fe80::b8c6:bfff:fe74:ebb2,ff02::2,58,ICMPv6 type=133 code=0,56
+2025-11-24T22:20:58.929789,ICMP,fe80::b8c6:bfff:fe74:ebb2,ff02::2,58,ICMPv6 type=133 code=0,56
