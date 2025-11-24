@@ -23,8 +23,10 @@ RUN make -C traffic_tunnel
 RUN python3 -m venv .venv
 ENV PATH="/app/.venv/bin:${PATH}"
 
-# Entrypoint controla modo server ou client
-COPY scripts/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh && mkdir -p scripts && chmod +x traffic_tunnel/*.sh
+# Reorganiza scripts: copia somente diretório scripts e garante permissões
+RUN mkdir -p scripts
+COPY scripts/ scripts/
+RUN sed -i 's/\r$//' scripts/*.sh && chmod +x scripts/*.sh traffic_tunnel/*.sh
 
-ENTRYPOINT ["/entrypoint.sh"]
+# Define entrypoint apontando para caminho absoluto dentro do WORKDIR
+ENTRYPOINT ["bash","scripts/entrypoint.sh"]
