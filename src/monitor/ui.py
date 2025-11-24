@@ -1,5 +1,6 @@
 import os
 import shutil
+import sys
 import time
 from typing import Dict
 
@@ -46,16 +47,26 @@ def render(snapshot: Dict) -> str:
 
 
 def print_periodic(get_snapshot_fn, interval: float = 1.0) -> None:
-    # UI modo texto simples, limpa a tela entre atualizações
+    """Atualiza a cada intervalo.
+
+    Se stdout não for TTY (ex: logs Docker), não tenta limpar a tela
+    para evitar poluir o log com códigos de controle.
+    """
+    is_tty = sys.stdout.isatty()
     try:
         while True:
             snap = get_snapshot_fn()
             out = render(snap)
-            # Limpa de forma compatível
-            cols = shutil.get_terminal_size((100, 24)).columns
-            os.system('clear')
+            if is_tty:
+                # Limpa somente em terminal interativo
+                try:
+                    cols = shutil.get_terminal_size((100, 24)).columns  # noqa: F841
+                except Exception:
+                    pass
+                os.system('clear')
             print(out)
-            print("\nCtrl+C para encerrar.")
+            if is_tty:
+                print("\nCtrl+C para encerrar.")
             time.sleep(interval)
     except KeyboardInterrupt:
         print("Encerrando monitor...")

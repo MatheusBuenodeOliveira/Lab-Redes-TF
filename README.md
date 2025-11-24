@@ -46,3 +46,46 @@ Observações importantes
 
 Relatório e evidências
 - Inclua no relatório prints da interface texto em execução e trechos dos CSVs com tráfego real capturado em uma rede com túnel, NAT e roteamento conforme o enunciado.
+ 
+## Execução via Docker Compose
+
+Para facilitar testes, há uma configuração containerizada com:
+- 1 container proxy (túnel + monitor Python)
+- 2 containers clientes (túnel + geração de tráfego HTTP/DNS/NTP)
+
+### Pré-requisitos
+- Docker ou Podman compatível com `docker compose`
+- Host Linux (recomendado) ou WSL2 com acesso ao dispositivo `/dev/net/tun`
+
+### Arquivos adicionados
+- `Dockerfile`: imagem base Debian com dependências e túnel compilado.
+- `docker-compose.yml`: define serviços `proxy`, `client1`, `client2` com capacidades de rede.
+- `scripts/entrypoint.sh`: controla modo server ou client via variável `ROLE`.
+- `scripts/generate_traffic.sh`: gera tráfego periódico (HTTP/DNS/NTP) nos clientes.
+
+### Uso rápido
+```bash
+docker compose up --build
+```
+Monitor:
+```bash
+docker compose logs -f proxy
+```
+Encerrar:
+```bash
+docker compose down
+```
+
+### Ajustes
+- Variáveis: `INTERFACE`, `CLIENT_SCRIPT`, `CLIENT_SUBNET` podem ser definidas no `docker-compose.yml`.
+- Para mais clientes, duplique o bloco `client2` e ajuste `CLIENT_SCRIPT`.
+
+### Limitações
+- Requer `CAP_NET_ADMIN` e `CAP_NET_RAW` + acesso `/dev/net/tun`.
+- Em ambiente não-TTY o monitor não limpa a tela (evita poluição de logs).
+
+### Comando único para teste
+```bash
+docker compose up --build
+```
+Após ~10–15s a interface `tun0` deve estar ativa e os CSV em `logs/` sendo preenchidos.

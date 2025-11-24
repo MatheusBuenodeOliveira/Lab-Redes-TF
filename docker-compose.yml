@@ -1,0 +1,44 @@
+version: '3.8'
+services:
+  proxy:
+    build: .
+    container_name: proxy-monitor
+    environment:
+      - ROLE=proxy
+      - INTERFACE=eth0
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    restart: unless-stopped
+
+  client1:
+    build: .
+    container_name: client1-tunnel
+    environment:
+      - ROLE=client
+      - INTERFACE=eth0
+      - CLIENT_SCRIPT=traffic_tunnel/client1.sh
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    restart: unless-stopped
+
+  client2:
+    build: .
+    container_name: client2-tunnel
+    environment:
+      - ROLE=client
+      - INTERFACE=eth0
+      - CLIENT_SCRIPT=traffic_tunnel/client2.sh
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    restart: unless-stopped
+
+# Uso: docker compose up --build
