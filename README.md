@@ -1,9 +1,9 @@
 # Monitor de Tráfego de Rede – Trabalho Final
 
-Este projeto implementa, em Python (raw sockets), um monitor de tráfego em tempo real para a interface `tun0`, conforme o enunciado do Trabalho Final de Laboratório de Redes.
+Este projeto implementa, em Python (raw sockets), um monitor de tráfego em tempo real para uma interface de captura configurável (ex.: `tun0`, `eth0`), conforme o enunciado do Trabalho Final de Laboratório de Redes.
 
 ## Funcionalidades Principais
-- Captura pacotes via raw socket na interface indicada (padrão: `tun0`).
+ - Captura pacotes via raw socket na interface indicada (ex.: `tun0`, `eth0`).
 - Parsing de camadas: IPv4/IPv6/ICMP, TCP/UDP.
 - Identificação básica de aplicação: HTTP, DHCP, DNS, NTP.
 - Logs CSV atualizados em tempo real em `logs/`:
@@ -15,7 +15,7 @@ Este projeto implementa, em Python (raw sockets), um monitor de tráfego em temp
 ## Requisitos de Execução (Modo Python Direto)
 - Linux com suporte a AF_PACKET (ex.: containers / VMs Linux).
 - Permissão de captura raw (root ou `CAP_NET_RAW`).
-- Interface `tun0` ativa e tráfego passando por ela (modo proxy do túnel do enunciado).
+- Interface de captura configurada e tráfego passando por ela (ex.: `tun0` ou `eth0`).
 
 ## Estrutura do Projeto
 - `main.py`: ponto de entrada do CLI.
@@ -25,11 +25,11 @@ Este projeto implementa, em Python (raw sockets), um monitor de tráfego em temp
 ```bash
 # Recomendado: Python 3.10+
 # Execute com privilégios (necessário para AF_PACKET):
-sudo -E python3 main.py -i tun0 --client-subnet 172.31.66.0/24
+sudo -E python3 main.py -i <INTERFACE> --client-subnet 172.31.66.0/24
 
 # Opções:
-#  -i/--interface       Interface de captura (padrão: tun0)
-#  --client-subnet      Sub-rede dos clientes no túnel (padrão: 172.31.66.0/24)
+#  -i/--interface       Interface de captura (ex.: tun0, eth0)
+#  --client-subnet      Sub-rede dos clientes (padrão: 172.31.66.0/24)
 ```
 
 ### Visualização de Logs (Tempo Real)
@@ -43,6 +43,14 @@ tail -f logs/aplicacao.csv
 - A captura em `tun0` pode não incluir cabeçalho Ethernet. O capturador se adapta automaticamente.
 - Em ambientes sem privilégios, o programa exibirá erro de permissão ao abrir socket raw.
 - A identificação de aplicação é heurística e limitada ao header inicial dos protocolos.
+
+### Estado atual do TUN
+- Observação: em alguns ambientes (incluindo o usado para gerar este relatório), o túnel TUN (`tun0`) não funcionou corretamente ou não encaminhou tráfego conforme esperado. Por esse motivo, as evidências e CSVs anexados ao relatório foram gerados sem dependência do TUN — a captura foi realizada via AF_PACKET nas interfaces disponíveis do container (rede bridge do Docker).
+- Consequências práticas:
+	- Os exemplos e logs presentes em `reports/execution_report.md` e em `logs/` foram obtidos sem usar `tun0`.
+	- Algumas métricas de aplicação (ex.: payload HTTP completo) podem não estar presentes se o túnel não permitir fluxo completo entre endpoints.
+	- Há uma seção "Demo Rápida Sem Túnel (Fallback)" mais abaixo no README com procedimentos para demonstrar o monitor usando uma interface alternativa (`eth0`) ou o script `scripts/demo_no_tunnel.sh`.
+
 
 ### Relatório e Evidências
 - Inclua no relatório prints da interface texto em execução e trechos dos CSVs com tráfego real capturado em uma rede com túnel, NAT e roteamento conforme o enunciado.
