@@ -40,11 +40,9 @@ tail -f logs/aplicacao.csv
 ```
 
 ### Observações Importantes
-- A captura em `tun0` pode não incluir cabeçalho Ethernet. O capturador se adapta automaticamente.
-- Em ambientes sem privilégios, o programa exibirá erro de permissão ao abrir socket raw.
-- A identificação de aplicação é heurística e limitada ao header inicial dos protocolos.
+- A captura em algumas interfaces pode não incluir cabeçalho Ethernet. O capturador se adapta automaticamente.
 
-### Estado atual do TUN
+- Interface texto com contadores por protocolo e estatísticas por cliente (sub-rede dos clientes `172.31.66.0/24` por padrão): endpoints remotos, portas, protocolos, conexões (SYN), pacotes e volume.
 - Observação: em alguns ambientes (incluindo o usado para gerar este relatório), o túnel TUN (`tun0`) não funcionou corretamente ou não encaminhou tráfego conforme esperado. Por esse motivo, as evidências e CSVs anexados ao relatório foram gerados sem dependência do TUN — a captura foi realizada via AF_PACKET nas interfaces disponíveis do container (rede bridge do Docker).
 - Consequências práticas:
 	- Os exemplos e logs presentes em `reports/execution_report.md` e em `logs/` foram obtidos sem usar `tun0`.
@@ -96,7 +94,7 @@ docker compose down
 ```bash
 docker compose up --build
 ```
-Após ~10–15s a interface `tun0` deve estar ativa e os CSV em `logs/` sendo preenchidos.
+Após ~10–15s a interface configurada deve estar ativa e os CSV em `logs/` sendo preenchidos.
 
 ## Geração de Tráfego Adicional para o Relatório
 
@@ -109,18 +107,18 @@ Como o túnel atual não encaminha plenamente tráfego entre clientes (sem forwa
 	docker compose up --build -d
 	```
 2. Verificar estado do proxy e da interface:
-	```bash
-	docker logs -f proxy
-	docker exec proxy-monitor ip addr show tun0
-	```
+ 	```bash
+ 	docker logs -f proxy
+ 	docker exec proxy-monitor ip addr show <INTERFACE>
+ 	```
 3. Iniciar um servidor HTTP no cliente (gera tráfego TCP observável):
 	```bash
 	docker exec -d client1-tunnel python3 -m http.server 8080 --bind 172.31.66.101
 	```
 4. Gerar tentativas de acesso via túnel (do proxy para o cliente):
-	```bash
-	docker exec proxy-monitor curl --interface tun0 -v http://172.31.66.101:8080/ || true
-	```
+ 	```bash
+ 	docker exec proxy-monitor curl --interface <INTERFACE> -v http://172.31.66.101:8080/ || true
+ 	```
 	Isso cria entradas TCP em `logs/transporte.csv` (mesmo que a conexão não estabeleça payload completo). Pacotes de tamanho 60 normalmente indicam SYN/ACK/keepalive sem payload — podendo não aparecer em `aplicacao.csv`.
 5. Observar crescimento dos arquivos:
 	```bash
@@ -139,7 +137,7 @@ O parser de aplicação registra linhas quando um pacote contém texto iniciando
 
 Opções para gerar payload HTTP real:
 - Implementar forwarding no túnel (modificação mais profunda em C) para permitir fluxo completo.
-- Adicionar um servidor HTTP dentro do próprio `proxy-monitor` e gerar requisições internas mapeadas para a tun (pode exigir ajuste de rotas para que os pacotes atravessem `tun0`).
+- Adicionar um servidor HTTP dentro do próprio `proxy-monitor` e gerar requisições internas mapeadas para a interface de captura (pode exigir ajuste de rotas para que os pacotes atravessem a interface configurada).
 
 ## Workflow Resumido
 ```bash
@@ -151,7 +149,7 @@ docker logs -f proxy
 
 # 3. Gerar tráfego adicional
 docker exec -d client1-tunnel python3 -m http.server 8080 --bind 172.31.66.101
-docker exec proxy-monitor curl --interface tun0 -v http://172.31.66.101:8080/ || true
+docker exec proxy-monitor curl --interface <INTERFACE> -v http://172.31.66.101:8080/ || true
 
 # 4. Coletar amostras
 docker exec proxy-monitor wc -l logs/*.csv
